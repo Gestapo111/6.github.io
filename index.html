@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluación: INTERACCIONES DE LA MATERIA</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            color: #333;
+        }
+        .quiz-container {
+            background-color: #fff;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 800px;
+        }
+        .question {
+            margin-bottom: 15px;
+        }
+        .options {
+            list-style-type: none;
+            padding: 0;
+        }
+        .options li {
+            margin-bottom: 10px;
+        }
+        button {
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        #results {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        footer {
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+            width: 100%;
+            text-align: center;
+            position: fixed;
+            bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Evaluación: INTERACCIONES DE LA MATERIA</h1>
+    <div class="quiz-container">
+        <div id="quiz"></div>
+        <button id="submit">Enviar respuestas</button>
+        <div id="results"></div>
+    </div>
+    <footer>
+        &copy; derechos reservados Prof. Alberto Sanchez
+    </footer>
+    <script>
+        const quizData = [
+            {
+                question: "¿Qué es una reacción química?",
+                answers: [
+                    { text: "Un cambio en la estructura de una molécula.", correct: true },
+                    { text: "Un cambio en el estado físico de una sustancia.", correct: false },
+                    { text: "Una mezcla de dos sustancias sin cambios químicos.", correct: false },
+                    { text: "Una ruptura de enlaces químicos.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué ley establece que la masa no se crea ni se destruye en una reacción química?",
+                answers: [
+                    { text: "Ley de Avogadro.", correct: false },
+                    { text: "Ley de la conservación de la masa.", correct: true },
+                    { text: "Ley de Dalton.", correct: false },
+                    { text: "Ley de Lavoisier.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es un catalizador?",
+                answers: [
+                    { text: "Una sustancia que acelera una reacción química sin consumirse.", correct: true },
+                    { text: "Una sustancia que se consume en una reacción química.", correct: false },
+                    { text: "Un reactivo en una reacción química.", correct: false },
+                    { text: "Un producto de una reacción química.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es una solución?",
+                answers: [
+                    { text: "Una mezcla homogénea de dos o más sustancias.", correct: true },
+                    { text: "Una mezcla heterogénea de dos o más sustancias.", correct: false },
+                    { text: "Una sustancia pura.", correct: false },
+                    { text: "Un compuesto químico.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la concentración de una solución?",
+                answers: [
+                    { text: "La cantidad de soluto disuelto en una cantidad determinada de solvente.", correct: true },
+                    { text: "La cantidad de solvente disuelto en una cantidad determinada de soluto.", correct: false },
+                    { text: "La cantidad de soluto en una solución saturada.", correct: false },
+                    { text: "La cantidad de solvente en una solución saturada.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la ley de Dalton?",
+                answers: [
+                    { text: "La presión total de una mezcla de gases es igual a la suma de las presiones parciales de los gases individuales.", correct: true },
+                    { text: "La masa de un compuesto es igual a la suma de las masas de los elementos que lo componen.", correct: false },
+                    { text: "La energía total de un sistema es igual a la suma de las energías cinética y potencial.", correct: false },
+                    { text: "La concentración de una solución es igual a la cantidad de soluto disuelto en una cantidad determinada de solvente.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es una reacción endotérmica?",
+                answers: [
+                    { text: "Una reacción que absorbe energía del entorno.", correct: true },
+                    { text: "Una reacción que libera energía al entorno.", correct: false },
+                    { text: "Una reacción que no cambia la energía del entorno.", correct: false },
+                    { text: "Una reacción que cambia la masa del entorno.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es una reacción exotérmica?",
+                answers: [
+                    { text: "Una reacción que libera energía al entorno.", correct: true },
+                    { text: "Una reacción que absorbe energía del entorno.", correct: false },
+                    { text: "Una reacción que no cambia la energía del entorno.", correct: false },
+                    { text: "Una reacción que cambia la masa del entorno.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la energía de activación?",
+                answers: [
+                    { text: "La energía mínima necesaria para que ocurra una reacción química.", correct: true },
+                    { text: "La energía máxima que puede liberar una reacción química.", correct: false },
+                    { text: "La energía liberada durante una reacción química.", correct: false },
+                    { text: "La energía absorbida durante una reacción química.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es un equilibrio químico?",
+                answers: [
+                    { text: "Un estado en el cual las concentraciones de reactivos y productos permanecen constantes con el tiempo.", correct: true },
+                    { text: "Un estado en el cual todos los reactivos se han convertido en productos.", correct: false },
+                    { text: "Un estado en el cual la velocidad de reacción es máxima.", correct: false },
+                    { text: "Un estado en el cual no ocurre ninguna reacción química.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es el principio de Le Chatelier?",
+                answers: [
+                    { text: "Cuando un sistema en equilibrio es perturbado, el sistema se ajusta para contrarrestar la perturbación.", correct: true },
+                    { text: "La presión total de una mezcla de gases es igual a la suma de las presiones parciales de los gases individuales.", correct: false },
+                    { text: "La energía total de un sistema es igual a la suma de las energías cinética y potencial.", correct: false },
+                    { text: "La concentración de una solución es igual a la cantidad de soluto disuelto en una cantidad determinada de solvente.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es una reacción redox?",
+                answers: [
+                    { text: "Una reacción en la cual ocurre una transferencia de electrones entre dos sustancias.", correct: true },
+                    { text: "Una reacción en la cual se libera energía al entorno.", correct: false },
+                    { text: "Una reacción en la cual se absorbe energía del entorno.", correct: false },
+                    { text: "Una reacción en la cual no ocurre ninguna transferencia de electrones.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es un agente oxidante?",
+                answers: [
+                    { text: "Una sustancia que acepta electrones en una reacción redox.", correct: true },
+                    { text: "Una sustancia que dona electrones en una reacción redox.", correct: false },
+                    { text: "Una sustancia que libera energía al entorno.", correct: false },
+                    { text: "Una sustancia que absorbe energía del entorno.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es un agente reductor?",
+                answers: [
+                    { text: "Una sustancia que dona electrones en una reacción redox.", correct: true },
+                    { text: "Una sustancia que acepta electrones en una reacción redox.", correct: false },
+                    { text: "Una sustancia que libera energía al entorno.", correct: false },
+                    { text: "Una sustancia que absorbe energía del entorno.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la ley de conservación de la energía?",
+                answers: [
+                    { text: "La energía no se crea ni se destruye, solo se transforma de una forma a otra.", correct: true },
+                    { text: "La masa de un compuesto es igual a la suma de las masas de los elementos que lo componen.", correct: false },
+                    { text: "La presión total de una mezcla de gases es igual a la suma de las presiones parciales de los gases individuales.", correct: false },
+                    { text: "La concentración de una solución es igual a la cantidad de soluto disuelto en una cantidad determinada de solvente.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es una solución saturada?",
+                answers: [
+                    { text: "Una solución en la cual no se puede disolver más soluto a una temperatura dada.", correct: true },
+                    { text: "Una solución en la cual se puede disolver más soluto a una temperatura dada.", correct: false },
+                    { text: "Una solución en la cual la cantidad de soluto disuelto es menor que la cantidad máxima posible.", correct: false },
+                    { text: "Una solución en la cual la cantidad de soluto disuelto es mayor que la cantidad máxima posible.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es una solución sobresaturada?",
+                answers: [
+                    { text: "Una solución en la cual la cantidad de soluto disuelto es mayor que la cantidad máxima posible a una temperatura dada.", correct: true },
+                    { text: "Una solución en la cual no se puede disolver más soluto a una temperatura dada.", correct: false },
+                    { text: "Una solución en la cual la cantidad de soluto disuelto es menor que la cantidad máxima posible.", correct: false },
+                    { text: "Una solución en la cual se puede disolver más soluto a una temperatura dada.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es una disolución?",
+                answers: [
+                    { text: "Un proceso en el cual una sustancia se dispersa uniformemente en otra.", correct: true },
+                    { text: "Un proceso en el cual una sustancia se separa en sus componentes.", correct: false },
+                    { text: "Un proceso en el cual una sustancia cambia de estado físico.", correct: false },
+                    { text: "Un proceso en el cual una sustancia se descompone químicamente.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la ley de Henry?",
+                answers: [
+                    { text: "La solubilidad de un gas en un líquido es directamente proporcional a la presión parcial del gas sobre el líquido.", correct: true },
+                    { text: "La solubilidad de un sólido en un líquido es directamente proporcional a la temperatura.", correct: false },
+                    { text: "La solubilidad de un líquido en un gas es inversamente proporcional a la presión.", correct: false },
+                    { text: "La solubilidad de un gas en un sólido es inversamente proporcional a la temperatura.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la presión de vapor?",
+                answers: [
+                    { text: "La presión ejercida por el vapor en equilibrio con su líquido a una temperatura determinada.", correct: true },
+                    { text: "La presión ejercida por un líquido en reposo.", correct: false },
+                    { text: "La presión ejercida por un gas en un contenedor.", correct: false },
+                    { text: "La presión ejercida por un sólido.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es el punto de ebullición?",
+                answers: [
+                    { text: "La temperatura a la cual la presión de vapor de un líquido es igual a la presión externa.", correct: true },
+                    { text: "La temperatura a la cual un líquido se convierte en sólido.", correct: false },
+                    { text: "La temperatura a la cual un gas se convierte en líquido.", correct: false },
+                    { text: "La temperatura a la cual un sólido se convierte en líquido.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es el punto de congelación?",
+                answers: [
+                    { text: "La temperatura a la cual un líquido se convierte en sólido.", correct: true },
+                    { text: "La temperatura a la cual un sólido se convierte en líquido.", correct: false },
+                    { text: "La temperatura a la cual un gas se convierte en líquido.", correct: false },
+                    { text: "La temperatura a la cual un líquido se convierte en gas.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la destilación?",
+                answers: [
+                    { text: "Un proceso de separación de componentes basado en sus diferentes puntos de ebullición.", correct: true },
+                    { text: "Un proceso de separación de componentes basado en sus diferentes puntos de congelación.", correct: false },
+                    { text: "Un proceso de separación de componentes basado en sus diferentes densidades.", correct: false },
+                    { text: "Un proceso de separación de componentes basado en sus diferentes solubilidades.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la cristalización?",
+                answers: [
+                    { text: "Un proceso de formación de cristales a partir de una solución.", correct: true },
+                    { text: "Un proceso de formación de líquidos a partir de una solución.", correct: false },
+                    { text: "Un proceso de formación de gases a partir de una solución.", correct: false },
+                    { text: "Un proceso de formación de sólidos a partir de una solución.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la cromatografía?",
+                answers: [
+                    { text: "Un método de separación de mezclas basado en la velocidad de migración de los componentes.", correct: true },
+                    { text: "Un método de separación de mezclas basado en sus diferentes puntos de ebullición.", correct: false },
+                    { text: "Un método de separación de mezclas basado en sus diferentes densidades.", correct: false },
+                    { text: "Un método de separación de mezclas basado en sus diferentes solubilidades.", correct: false }
+                ]
+            }
+        ];
+
+        let attempt = 0;
+        const maxAttempts = 3;
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function loadQuiz() {
+            const quizContainer = document.getElementById('quiz');
+            quizContainer.innerHTML = '';
+            quizData.forEach((data, index) => {
+                const questionContainer = document.createElement('div');
+                questionContainer.className = 'question';
+
+                const questionTitle = document.createElement('h3');
+                questionTitle.innerText = `${index + 1}. ${data.question}`;
+                questionContainer.appendChild(questionTitle);
+
+                const optionsList = document.createElement('ul');
+                optionsList.className = 'options';
+
+                shuffle(data.answers).forEach(answer => {
+                    const option = document.createElement('li');
+                    const optionLabel = document.createElement('label');
+                    const optionInput = document.createElement('input');
+                    optionInput.type = 'radio';
+                    optionInput.name = `question${index}`;
+                    optionInput.value = answer.correct;
+                    optionLabel.appendChild(optionInput);
+                    optionLabel.appendChild(document.createTextNode(answer.text));
+                    option.appendChild(optionLabel);
+                    optionsList.appendChild(option);
+                });
+
+                questionContainer.appendChild(optionsList);
+                quizContainer.appendChild(questionContainer);
+            });
+        }
+
+        function submitQuiz() {
+            if (attempt >= maxAttempts) {
+                alert('Has alcanzado el número máximo de intentos.');
+                return;
+            }
+
+            const resultsContainer = document.getElementById('results');
+            const answers = document.querySelectorAll('input[type="radio"]:checked');
+            let score = 0;
+
+            quizData.forEach((data, index) => {
+                const selected = answers[index] ? answers[index].value === 'true' : null;
+                if (selected === true) {
+                    score += 0.4; // Each correct answer is worth 0.4 points
+                }
+            });
+
+            score = Math.round(score * 10) / 10; // Round to one decimal place
+            let feedback = quizData.map((data, index) => {
+                const selected = answers[index] ? answers[index].value === 'true' : null;
+                let result;
+                if (selected === null) {
+                    result = "No contestada";
+                } else if (selected === true) {
+                    result = "Correcta";
+                } else {
+                    result = "Incorrecta";
+                }
+                return `<p>${index + 1}. ${result}</p>`;
+            }).join("");
+
+            resultsContainer.innerHTML = `<h3>Resultados:</h3><p>Puntaje: ${score} / 10</p>${feedback}`;
+
+            attempt++;
+            if (attempt >= maxAttempts) {
+                alert('Has alcanzado el número máximo de intentos.');
+            }
+        }
+
+        document.getElementById('submit').addEventListener('click', submitQuiz);
+
+        loadQuiz();
+    </script>
+</body>
+</html>
