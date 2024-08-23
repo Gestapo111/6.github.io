@@ -7,562 +7,558 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            padding: 20px;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            user-select: none; /* Bloquea selección de texto */
         }
+        h1 {
+            color: #333;
+        }
+        .quiz-container {
+            background-color: #fff;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 800px;
+            display: none; /* Oculto hasta que se ingrese el NIE válido */
+        }
+        .question {
+            margin-bottom: 15px;
+        }
+        .options {
+            list-style-type: none;
+            padding: 0;
+        }
+        .options li {
+            margin-bottom: 10px;
+        }
+        button {
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        #results {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        footer {
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+            width: 100%;
+            text-align: center;
+            position: fixed;
+            bottom: 0;
+        }
+        .input-field {
+            margin-bottom: 10px;
+        }
+        .input-field label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .input-field input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+            padding-top: 60px;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        /* Cronómetro flotante */
         #timer {
             position: fixed;
             top: 10px;
             right: 10px;
-            background-color: #f2f2f2;
-            border: 1px solid #ccc;
             padding: 10px;
+            background-color: green;
+            color: white;
             font-size: 18px;
             border-radius: 5px;
         }
-        .hidden {
-            display: none;
+        /* Estilo para los números de preguntas incorrectas */
+        .incorrect-answers {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
         }
-        .question {
-            margin-bottom: 20px;
-        }
-        .question h3 {
-            margin-bottom: 10px;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        #resultsModal {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: white;
-            padding: 20px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-        }
-        #overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 500;
+        .incorrect-answers div {
+            width: 18%;
+            text-align: center;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 5px;
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
-    <div id="timer" class="hidden">Tiempo restante: <span id="time">30:00</span></div>
+    <h1>Evaluación Unidad 6: Interacciones de la Materia</h1>
+    <div class="quiz-container">
+        <div id="quiz"></div>
+        <button id="submit">Enviar respuestas</button>
+    </div>
+    <footer>
+        &copy; Derechos Reservados Prof. Alberto Sanchez
+    </footer>
 
-    <div class="container">
-        <div id="studentInfoForm">
-            <h2>Información del Estudiante</h2>
-            <form id="infoForm">
-                <label for="name">Nombre del Estudiante:</label>
-                <input type="text" id="name" required><br><br>
+    <!-- Modal para solicitar nombre y NIE -->
+    <div id="infoModal" class="modal">
+        <div class="modal-content">
+            <h2>Por favor, ingresa tus datos</h2>
+            <div class="input-field">
+                <label for="fullname">Nombre completo:</label>
+                <input type="text" id="fullname" required>
+            </div>
+            <div class="input-field">
                 <label for="nie">NIE:</label>
-                <input type="text" id="nie" required><br><br>
-                <label for="unit">Unidad Evaluada:</label>
-                <input type="text" id="unit" value="Unidad 6: Interacciones de la Materia" readonly><br><br>
-                <button type="submit">Iniciar Evaluación</button>
-            </form>
+                <input type="text" id="nie" required>
+            </div>
+            <button id="startQuiz">Comenzar Evaluación</button>
         </div>
-
-        <div id="quiz" class="hidden">
-            <h2>Evaluación Unidad 6: Interacciones de la Materia</h2>
-
-            <div id="questions-container"></div>
-
-            <button id="submitQuiz">OBTENER CALIFICACIÓN</button>
-        </div>
-
-        <div id="resultsModal">
-            <h2>Resultados</h2>
-            <p id="date"></p>
-            <p id="timeTaken"></p>
-            <p id="unitEvaluated"></p>
-            <p id="studentName"></p>
-            <p id="studentNIE"></p>
-            <p id="score"></p>
-            <p id="incorrectAnswers"></p>
-            <button id="closeModal">Cerrar</button>
-        </div>
-
-        <div id="overlay"></div>
     </div>
 
-    <script>
-        const nieList = ["4267837", "3850952", "3851018", "5032035", "19806181", "6297536", "2608724", "6262810", "4267838", "20162435", "3850923", "19806209", "4267828", "3850942"];
-        const maxTime = 30 * 60; // 30 minutos en segundos
-        let timeRemaining = maxTime;
-        const timerElement = document.getElementById('time');
-        let startTime;
+    <!-- Modal de resultados -->
+    <div id="resultModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Resultados de la Evaluación</h2>
+            <p id="modalName"></p>
+            <p id="modalNIE"></p>
+            <h3>Preguntas incorrectas:</h3>
+            <div id="modalIncorrectAnswers" class="incorrect-answers"></div>
+            <h3>Detalles:</h3>
+            <p id="modalDetails"></p>
+            <h3>Intentos de manipulación detectados:</h3>
+            <p id="manipulationCount"></p>
+            <h3>Reintentos:</h3>
+            <p id="attemptCount"></p>
+        </div>
+    </div>
 
-        const questions = [
-            // Indicador 6.1
+    <div id="timer">30:00</div>
+
+    <script>
+        const quizData = [
             {
-                id: 'q1',
-                indicator: 'Indicador 6.1: Experimenta, describe y representa con interés una reacción química con sus componentes.',
-                question: "¿Cuál de las siguientes opciones representa una reacción química?",
-                options: [
-                    { value: 'a', text: "La formación de óxido en una reja de hierro expuesta al aire." },
-                    { value: 'b', text: "La disolución de azúcar en agua." },
-                    { value: 'c', text: "El derretimiento de hielo en agua líquida." },
-                    { value: 'd', text: "La evaporación de alcohol en un vaso abierto." }
-                ]
-            },
-            {
-                id: 'q2',
-                indicator: 'Indicador 6.1: Experimenta, describe y representa con interés una reacción química con sus componentes.',
-                question: "¿Qué componente es esencial en una reacción de combustión?",
-                options: [
-                    { value: 'a', text: "Oxígeno." },
-                    { value: 'b', text: "Nitrógeno." },
-                    { value: 'c', text: "Dióxido de carbono." },
-                    { value: 'd', text: "Agua." }
-                ]
-            },
-            {
-                id: 'q3',
-                indicator: 'Indicador 6.1: Experimenta, describe y representa con interés una reacción química con sus componentes.',
-                question: "¿Cuál es un signo común de que ha ocurrido una reacción química?",
-                options: [
-                    { value: 'a', text: "Cambio de color." },
-                    { value: 'b', text: "Cambio de estado físico sin cambio químico." },
-                    { value: 'c', text: "Fusión de sólidos sin cambio de composición." },
-                    { value: 'd', text: "Disolución de sólidos en líquidos." }
-                ]
-            },
-            {
-                id: 'q4',
-                indicator: 'Indicador 6.1: Experimenta, describe y representa con interés una reacción química con sus componentes.',
-                question: "¿Qué ocurre con los reactantes en una reacción química?",
-                options: [
-                    { value: 'a', text: "Se transforman en productos con diferentes propiedades químicas." },
-                    { value: 'b', text: "Se combinan físicamente pero conservan sus propiedades químicas." },
-                    { value: 'c', text: "Se separan sin formar nuevas sustancias." },
-                    { value: 'd', text: "Se conservan sin cambio en la composición química." }
-                ]
-            },
-            {
-                id: 'q5',
-                indicator: 'Indicador 6.1: Experimenta, describe y representa con interés una reacción química con sus componentes.',
-                question: "¿Cuál de las siguientes opciones es un ejemplo de una reacción química?",
-                options: [
-                    { value: 'a', text: "La oxidación de cobre formando óxido de cobre." },
-                    { value: 'b', text: "La mezcla de arena y sal." },
-                    { value: 'c', text: "La sublimación del yodo sólido." },
-                    { value: 'd', text: "La dilución de ácido en agua." }
-                ]
-            },
-            // Indicador 6.2
-            {
-                id: 'q6',
-                indicator: 'Indicador 6.2: Experimenta, describe e identifica con seguridad los principales tipos de reacciones químicas: combinación, descomposición, desplazamiento y neutralización.',
-                question: "¿Qué tipo de reacción química ocurre cuando dos o más sustancias se combinan para formar una sustancia más compleja?",
-                options: [
-                    { value: 'a', text: "Reacción de combinación." },
-                    { value: 'b', text: "Reacción de descomposición." },
-                    { value: 'c', text: "Reacción de desplazamiento." },
-                    { value: 'd', text: "Reacción de neutralización." }
-                ]
-            },
-            {
-                id: 'q7',
-                indicator: 'Indicador 6.2: Experimenta, describe e identifica con seguridad los principales tipos de reacciones químicas: combinación, descomposición, desplazamiento y neutralización.',
-                question: "¿Qué tipo de reacción química implica la ruptura de una sustancia en dos o más productos más simples?",
-                options: [
-                    { value: 'a', text: "Reacción de descomposición." },
-                    { value: 'b', text: "Reacción de combinación." },
-                    { value: 'c', text: "Reacción de desplazamiento." },
-                    { value: 'd', text: "Reacción de neutralización." }
-                ]
-            },
-            {
-                id: 'q8',
-                indicator: 'Indicador 6.2: Experimenta, describe e identifica con seguridad los principales tipos de reacciones químicas: combinación, descomposición, desplazamiento y neutralización.',
-                question: "¿Qué tipo de reacción química ocurre cuando un ácido reacciona con una base para formar agua y una sal?",
-                options: [
-                    { value: 'a', text: "Reacción de neutralización." },
-                    { value: 'b', text: "Reacción de desplazamiento." },
-                    { value: 'c', text: "Reacción de combinación." },
-                    { value: 'd', text: "Reacción de descomposición." }
-                ]
-            },
-            {
-                id: 'q9',
-                indicator: 'Indicador 6.2: Experimenta, describe e identifica con seguridad los principales tipos de reacciones químicas: combinación, descomposición, desplazamiento y neutralización.',
-                question: "¿Qué tipo de reacción química ocurre cuando un elemento desplaza a otro en un compuesto?",
-                options: [
-                    { value: 'a', text: "Reacción de desplazamiento." },
-                    { value: 'b', text: "Reacción de combinación." },
-                    { value: 'c', text: "Reacción de descomposición." },
-                    { value: 'd', text: "Reacción de neutralización." }
-                ]
-            },
-            {
-                id: 'q10',
-                indicator: 'Indicador 6.2: Experimenta, describe e identifica con seguridad los principales tipos de reacciones químicas: combinación, descomposición, desplazamiento y neutralización.',
-                question: "¿Cuál de las siguientes es una reacción de descomposición?",
-                options: [
-                    { value: 'a', text: "La electrólisis del agua para formar hidrógeno y oxígeno." },
-                    { value: 'b', text: "La combustión de metano en dióxido de carbono y agua." },
-                    { value: 'c', text: "La mezcla de ácido clorhídrico con hidróxido de sodio para formar sal y agua." },
-                    { value: 'd', text: "La combinación de nitrógeno e hidrógeno para formar amoníaco." }
-                ]
-            },
-            // Indicador 6.3
-            {
-                id: 'q11',
-                indicator: 'Indicador 6.3: Experimenta, representa y analiza con interés la velocidad de las reacciones químicas y factores que las afectan: la concentración de los reactantes, la temperatura del sistema, la naturaleza de los reactantes, el estado de los reactantes y la presencia de catalizadores.',
                 question: "¿Cómo afecta la concentración de los reactantes a la velocidad de una reacción química?",
-                options: [
-                    { value: 'a', text: "Un aumento en la concentración generalmente aumenta la velocidad de la reacción." },
-                    { value: 'b', text: "Un aumento en la concentración disminuye la velocidad de la reacción." },
-                    { value: 'c', text: "Un aumento en la concentración no tiene efecto sobre la velocidad de la reacción." },
-                    { value: 'd', text: "Un aumento en la concentración detiene la reacción." }
+                answers: [
+                    { text: "Un aumento en la concentración generalmente aumenta la velocidad de la reacción.", correct: true },
+                    { text: "Un aumento en la concentración disminuye la velocidad de la reacción.", correct: false },
+                    { text: "Un aumento en la concentración no tiene efecto sobre la velocidad de la reacción.", correct: false },
+                    { text: "Un aumento en la concentración detiene la reacción.", correct: false }
                 ]
             },
             {
-                id: 'q12',
-                indicator: 'Indicador 6.3: Experimenta, representa y analiza con interés la velocidad de las reacciones químicas y factores que las afectan: la concentración de los reactantes, la temperatura del sistema, la naturaleza de los reactantes, el estado de los reactantes y la presencia de catalizadores.',
-                question: "¿Cómo afecta la temperatura del sistema a la velocidad de una reacción química?",
-                options: [
-                    { value: 'a', text: "Un aumento en la temperatura generalmente aumenta la velocidad de la reacción." },
-                    { value: 'b', text: "Un aumento en la temperatura disminuye la velocidad de la reacción." },
-                    { value: 'c', text: "Un aumento en la temperatura no tiene efecto sobre la velocidad de la reacción." },
-                    { value: 'd', text: "Un aumento en la temperatura detiene la reacción." }
+                question: "¿Cuál de las siguientes opciones es un ejemplo de una reacción química?",
+                answers: [
+                    { text: "La oxidación de cobre formando óxido de cobre.", correct: true },
+                    { text: "La mezcla de arena y sal.", correct: false },
+                    { text: "La sublimación del yodo sólido.", correct: false },
+                    { text: "La dilución de ácido en agua.", correct: false }
                 ]
             },
             {
-                id: 'q13',
-                indicator: 'Indicador 6.3: Experimenta, representa y analiza con interés la velocidad de las reacciones químicas y factores que las afectan: la concentración de los reactantes, la temperatura del sistema, la naturaleza de los reactantes, el estado de los reactantes y la presencia de catalizadores.',
-                question: "¿Qué efecto tiene la presencia de un catalizador en la velocidad de una reacción química?",
-                options: [
-                    { value: 'a', text: "Aumenta la velocidad de la reacción sin consumirse." },
-                    { value: 'b', text: "Disminuye la velocidad de la reacción y se consume en el proceso." },
-                    { value: 'c', text: "No tiene efecto sobre la velocidad de la reacción." },
-                    { value: 'd', text: "Detiene la reacción por completo." }
-                ]
-            },
-            {
-                id: 'q14',
-                indicator: 'Indicador 6.3: Experimenta, representa y analiza con interés la velocidad de las reacciones químicas y factores que las afectan: la concentración de los reactantes, la temperatura del sistema, la naturaleza de los reactantes, el estado de los reactantes y la presencia de catalizadores.',
-                question: "¿Qué factor afecta la velocidad de una reacción química al influir en la frecuencia de las colisiones entre las moléculas reactantes?",
-                options: [
-                    { value: 'a', text: "La concentración de los reactantes." },
-                    { value: 'b', text: "La naturaleza de los reactantes." },
-                    { value: 'c', text: "La presión del sistema." },
-                    { value: 'd', text: "El estado físico de los reactantes." }
-                ]
-            },
-            {
-                id: 'q15',
-                indicator: 'Indicador 6.3: Experimenta, representa y analiza con interés la velocidad de las reacciones químicas y factores que las afectan: la concentración de los reactantes, la temperatura del sistema, la naturaleza de los reactantes, el estado de los reactantes y la presencia de catalizadores.',
-                question: "¿Cómo afecta el estado de los reactantes a la velocidad de una reacción química?",
-                options: [
-                    { value: 'a', text: "Las reacciones entre gases suelen ser más rápidas que entre sólidos." },
-                    { value: 'b', text: "Las reacciones entre sólidos suelen ser más rápidas que entre líquidos." },
-                    { value: 'c', text: "El estado de los reactantes no afecta la velocidad de la reacción." },
-                    { value: 'd', text: "Las reacciones entre líquidos son más lentas que entre sólidos." }
-                ]
-            },
-            // Indicador 6.4
-            {
-                id: 'q16',
-                indicator: 'Indicador 6.4: Representa y describe con curiosidad la teoría de las colisiones en una reacción química.',
-                question: "¿Qué establece la teoría de las colisiones en una reacción química?",
-                options: [
-                    { value: 'a', text: "Las moléculas deben colisionar con suficiente energía y una orientación adecuada para reaccionar." },
-                    { value: 'b', text: "Las moléculas solo necesitan colisionar para reaccionar." },
-                    { value: 'c', text: "Las colisiones moleculares siempre resultan en una reacción química." },
-                    { value: 'd', text: "Las moléculas reaccionan sin necesidad de colisiones." }
-                ]
-            },
-            {
-                id: 'q17',
-                indicator: 'Indicador 6.4: Representa y describe con curiosidad la teoría de las colisiones en una reacción química.',
-                question: "¿Cómo se relaciona la energía de activación con la teoría de las colisiones?",
-                options: [
-                    { value: 'a', text: "Es la mínima energía que las moléculas deben tener al colisionar para que ocurra una reacción." },
-                    { value: 'b', text: "Es la energía máxima que las moléculas pueden tener para reaccionar." },
-                    { value: 'c', text: "Es la energía que se libera durante la colisión." },
-                    { value: 'd', text: "Es la energía que se absorbe durante la reacción." }
-                ]
-            },
-            {
-                id: 'q18',
-                indicator: 'Indicador 6.4: Representa y describe con curiosidad la teoría de las colisiones en una reacción química.',
-                question: "¿Qué ocurre si las moléculas colisionan con una energía inferior a la energía de activación?",
-                options: [
-                    { value: 'a', text: "No ocurre ninguna reacción." },
-                    { value: 'b', text: "Ocurre una reacción lenta." },
-                    { value: 'c', text: "Ocurre una reacción rápida." },
-                    { value: 'd', text: "La reacción se detiene de inmediato." }
-                ]
-            },
-            {
-                id: 'q19',
-                indicator: 'Indicador 6.4: Representa y describe con curiosidad la teoría de las colisiones en una reacción química.',
-                question: "¿Cómo afecta la orientación de las moléculas en una colisión a la reacción química?",
-                options: [
-                    { value: 'a', text: "La orientación correcta es necesaria para que la colisión resulte en una reacción." },
-                    { value: 'b', text: "La orientación de las moléculas no afecta la reacción." },
-                    { value: 'c', text: "Cualquier orientación resulta en una reacción química exitosa." },
-                    { value: 'd', text: "La orientación incorrecta acelera la reacción." }
-                ]
-            },
-            {
-                id: 'q20',
-                indicator: 'Indicador 6.4: Representa y describe con curiosidad la teoría de las colisiones en una reacción química.',
-                question: "¿Qué es la frecuencia de colisión en la teoría de las colisiones?",
-                options: [
-                    { value: 'a', text: "El número de colisiones por unidad de tiempo entre moléculas reactantes." },
-                    { value: 'b', text: "El número de colisiones exitosas que resultan en una reacción." },
-                    { value: 'c', text: "El número de colisiones fallidas en un sistema." },
-                    { value: 'd', text: "El número de colisiones necesarias para alcanzar la energía de activación." }
-                ]
-            },
-            // Indicador 6.5
-            {
-                id: 'q21',
-                indicator: 'Indicador 6.5: Experimenta, representa y explica con interés el principio de la conservación de la materia en una reacción química.',
-                question: "¿Qué establece el principio de conservación de la materia en una reacción química?",
-                options: [
-                    { value: 'a', text: "La masa total de los reactantes es igual a la masa total de los productos." },
-                    { value: 'b', text: "La masa total de los reactantes es mayor que la masa total de los productos." },
-                    { value: 'c', text: "La masa total de los reactantes es menor que la masa total de los productos." },
-                    { value: 'd', text: "La masa se destruye durante la reacción." }
-                ]
-            },
-            {
-                id: 'q22',
-                indicator: 'Indicador 6.5: Experimenta, representa y explica con interés el principio de la conservación de la materia en una reacción química.',
-                question: "¿Qué ocurre con los átomos durante una reacción química según el principio de conservación de la materia?",
-                options: [
-                    { value: 'a', text: "Los átomos se redistribuyen entre los reactantes y los productos, pero su número total permanece constante." },
-                    { value: 'b', text: "Los átomos desaparecen en los reactantes y aparecen en los productos." },
-                    { value: 'c', text: "Los átomos se destruyen durante la reacción." },
-                    { value: 'd', text: "Los átomos se crean durante la reacción." }
-                ]
-            },
-            {
-                id: 'q23',
-                indicator: 'Indicador 6.5: Experimenta, representa y explica con interés el principio de la conservación de la materia en una reacción química.',
-                question: "¿Cómo se representa el principio de conservación de la materia en una ecuación química balanceada?",
-                options: [
-                    { value: 'a', text: "El número de átomos de cada elemento es igual en ambos lados de la ecuación." },
-                    { value: 'b', text: "La masa de los productos es mayor que la masa de los reactantes." },
-                    { value: 'c', text: "La masa de los reactantes es menor que la masa de los productos." },
-                    { value: 'd', text: "El número de moléculas es mayor en los productos." }
-                ]
-            },
-            {
-                id: 'q24',
-                indicator: 'Indicador 6.5: Experimenta, representa y explica con interés el principio de la conservación de la materia en una reacción química.',
-                question: "¿Qué implica el principio de conservación de la materia en la química ambiental?",
-                options: [
-                    { value: 'a', text: "Los contaminantes no desaparecen, solo se transforman en otras sustancias." },
-                    { value: 'b', text: "Los contaminantes se destruyen durante las reacciones químicas." },
-                    { value: 'c', text: "La masa de los contaminantes siempre aumenta durante las reacciones." },
-                    { value: 'd', text: "La masa de los contaminantes se reduce a cero." }
-                ]
-            },
-            {
-                id: 'q25',
-                indicator: 'Indicador 6.5: Experimenta, representa y explica con interés el principio de la conservación de la materia en una reacción química.',
-                question: "¿Cómo se asegura el principio de conservación de la materia en un laboratorio de química?",
-                options: [
-                    { value: 'a', text: "Balanceando adecuadamente las ecuaciones químicas de las reacciones." },
-                    { value: 'b', text: "Aumentando la cantidad de reactantes para obtener más productos." },
-                    { value: 'c', text: "Reduciendo la cantidad de productos para igualar la masa de los reactantes." },
-                    { value: 'd', text: "No es necesario ningún ajuste, la materia se conserva por sí misma." }
-                ]
-            },
-            // Indicador 6.6
-            {
-                id: 'q26',
-                indicator: 'Indicador 6.6: Balancea correctamente ecuaciones químicas mediante diferentes métodos: por tanteo, algebraico y óxido-reducción.',
-                question: "¿Qué es el método de tanteo en el balanceo de ecuaciones químicas?",
-                options: [
-                    { value: 'a', text: "Un método de prueba y error para igualar el número de átomos de cada elemento en ambos lados de la ecuación." },
-                    { value: 'b', text: "Un método que utiliza ecuaciones algebraicas para balancear la ecuación." },
-                    { value: 'c', text: "Un método que se aplica solo en reacciones redox." },
-                    { value: 'd', text: "Un método que no requiere ajuste de coeficientes." }
-                ]
-            },
-            {
-                id: 'q27',
-                indicator: 'Indicador 6.6: Balancea correctamente ecuaciones químicas mediante diferentes métodos: por tanteo, algebraico y óxido-reducción.',
-                question: "¿En qué consiste el método algebraico para balancear ecuaciones químicas?",
-                options: [
-                    { value: 'a', text: "En plantear un sistema de ecuaciones que representa la cantidad de átomos de cada elemento." },
-                    { value: 'b', text: "En ajustar los coeficientes por prueba y error." },
-                    { value: 'c', text: "En usar fracciones en lugar de números enteros para balancear la ecuación." },
-                    { value: 'd', text: "En balancear solo los elementos metálicos." }
-                ]
-            },
-            {
-                id: 'q28',
-                indicator: 'Indicador 6.6: Balancea correctamente ecuaciones químicas mediante diferentes métodos: por tanteo, algebraico y óxido-reducción.',
-                question: "¿Qué método se utiliza específicamente para balancear ecuaciones de reacciones de óxido-reducción?",
-                options: [
-                    { value: 'a', text: "El método del ion-electrón." },
-                    { value: 'b', text: "El método del tanteo." },
-                    { value: 'c', text: "El método algebraico." },
-                    { value: 'd', text: "El método de combinación." }
-                ]
-            },
-            {
-                id: 'q29',
-                indicator: 'Indicador 6.6: Balancea correctamente ecuaciones químicas mediante diferentes métodos: por tanteo, algebraico y óxido-reducción.',
-                question: "¿Cuál es la primera regla en el balanceo de ecuaciones químicas por el método del tanteo?",
-                options: [
-                    { value: 'a', text: "Comenzar por el elemento que aparece en un solo compuesto en ambos lados de la ecuación." },
-                    { value: 'b', text: "Comenzar por el oxígeno y el hidrógeno." },
-                    { value: 'c', text: "Comenzar por el elemento que aparece en más compuestos." },
-                    { value: 'd', text: "Comenzar por los elementos no metálicos." }
-                ]
-            },
-            {
-                id: 'q30',
-                indicator: 'Indicador 6.6: Balancea correctamente ecuaciones químicas mediante diferentes métodos: por tanteo, algebraico y óxido-reducción.',
                 question: "¿Qué significa balancear una ecuación química?",
-                options: [
-                    { value: 'a', text: "Asegurarse de que la cantidad de átomos de cada elemento sea igual en ambos lados de la ecuación." },
-                    { value: 'b', text: "Asegurarse de que la cantidad de moléculas sea igual en ambos lados de la ecuación." },
-                    { value: 'c', text: "Asegurarse de que la energía liberada sea la misma en ambos lados." },
-                    { value: 'd', text: "Asegurarse de que todos los reactantes se conviertan en productos." }
-                ]
-            },
-            // Indicador 6.7
-            {
-                id: 'q31',
-                indicator: 'Indicador 6.7: Indaga, analiza e interpreta con interés la ley del equilibrio químico en algunas sustancias químicas del entorno.',
-                question: "¿Qué establece la ley del equilibrio químico?",
-                options: [
-                    { value: 'a', text: "En una reacción reversible, la velocidad de la reacción directa es igual a la velocidad de la reacción inversa en el equilibrio." },
-                    { value: 'b', text: "En una reacción irreversible, los productos se forman más rápido que los reactantes." },
-                    { value: 'c', text: "En el equilibrio químico, las concentraciones de reactantes y productos son iguales." },
-                    { value: 'd', text: "En el equilibrio químico, no ocurren más reacciones químicas." }
+                answers: [
+                    { text: "Asegurarse de que la cantidad de átomos de cada elemento sea igual en ambos lados de la ecuación.", correct: true },
+                    { text: "Asegurarse de que la cantidad de moléculas sea igual en ambos lados de la ecuación.", correct: false },
+                    { text: "Asegurarse de que la energía liberada sea la misma en ambos lados.", correct: false },
+                    { text: "Asegurarse de que todos los reactantes se conviertan en productos.", correct: false }
                 ]
             },
             {
-                id: 'q32',
-                indicator: 'Indicador 6.7: Indaga, analiza e interpreta con interés la ley del equilibrio químico en algunas sustancias químicas del entorno.',
-                question: "¿Qué es la constante de equilibrio (K) en una reacción química?",
-                options: [
-                    { value: 'a', text: "Es una relación entre las concentraciones de productos y reactantes en el equilibrio." },
-                    { value: 'b', text: "Es una constante que depende de la velocidad de la reacción." },
-                    { value: 'c', text: "Es una constante que indica la cantidad de productos formados al final de la reacción." },
-                    { value: 'd', text: "Es una constante que no cambia con la temperatura." }
-                ]
-            },
-            {
-                id: 'q33',
-                indicator: 'Indicador 6.7: Indaga, analiza e interpreta con interés la ley del equilibrio químico en algunas sustancias químicas del entorno.',
-                question: "¿Qué sucede con una reacción en equilibrio cuando se aumenta la concentración de uno de los reactantes?",
-                options: [
-                    { value: 'a', text: "El equilibrio se desplaza hacia los productos." },
-                    { value: 'b', text: "El equilibrio se desplaza hacia los reactantes." },
-                    { value: 'c', text: "No hay cambio en el equilibrio." },
-                    { value: 'd', text: "La reacción se detiene por completo." }
-                ]
-            },
-            {
-                id: 'q34',
-                indicator: 'Indicador 6.7: Indaga, analiza e interpreta con interés la ley del equilibrio químico en algunas sustancias químicas del entorno.',
-                question: "¿Cómo afecta un cambio de temperatura a una reacción en equilibrio?",
-                options: [
-                    { value: 'a', text: "Depende de si la reacción es endotérmica o exotérmica." },
-                    { value: 'b', text: "Siempre desplaza el equilibrio hacia los productos." },
-                    { value: 'c', text: "Siempre desplaza el equilibrio hacia los reactantes." },
-                    { value: 'd', text: "No afecta el equilibrio." }
-                ]
-            },
-            {
-                id: 'q35',
-                indicator: 'Indicador 6.7: Indaga, analiza e interpreta con interés la ley del equilibrio químico en algunas sustancias químicas del entorno.',
-                question: "¿Qué sucede si se aumenta la presión en una reacción en equilibrio que involucra gases?",
-                options: [
-                    { value: 'a', text: "El equilibrio se desplaza hacia el lado con menos moles de gas." },
-                    { value: 'b', text: "El equilibrio se desplaza hacia el lado con más moles de gas." },
-                    { value: 'c', text: "No hay cambio en el equilibrio." },
-                    { value: 'd', text: "La reacción se vuelve irreversible." }
-                ]
-            },
-            // Indicador 6.8
-            {
-                id: 'q36',
-                indicator: 'Indicador 6.8: Aplica con persistencia el principio de Le Chatelier para predecir el desplazamiento del equilibrio químico de una reacción reversible.',
                 question: "¿Qué establece el principio de Le Chatelier?",
-                options: [
-                    { value: 'a', text: "Si se aplica un cambio a un sistema en equilibrio, el sistema se ajustará para contrarrestar ese cambio." },
-                    { value: 'b', text: "El equilibrio de un sistema no se ve afectado por cambios en las condiciones externas." },
-                    { value: 'c', text: "Un sistema en equilibrio no puede ser perturbado por un cambio en la concentración." },
-                    { value: 'd', text: "El equilibrio químico se alcanza cuando las concentraciones de reactantes y productos son iguales." }
+                answers: [
+                    { text: "Si se aplica un cambio a un sistema en equilibrio, el sistema se ajustará para contrarrestar ese cambio.", correct: true },
+                    { text: "El equilibrio de un sistema no se ve afectado por cambios en las condiciones externas.", correct: false },
+                    { text: "Un sistema en equilibrio no puede ser perturbado por un cambio en la concentración.", correct: false },
+                    { text: "El equilibrio químico se alcanza cuando las concentraciones de reactantes y productos son iguales.", correct: false }
                 ]
             },
             {
-                id: 'q37',
-                indicator: 'Indicador 6.8: Aplica con persistencia el principio de Le Chatelier para predecir el desplazamiento del equilibrio químico de una reacción reversible.',
+                question: "¿Qué implica el principio de conservación de la materia en la química ambiental?",
+                answers: [
+                    { text: "Los contaminantes no desaparecen, solo se transforman en otras sustancias.", correct: true },
+                    { text: "Los contaminantes se destruyen durante las reacciones químicas.", correct: false },
+                    { text: "La masa de los contaminantes siempre aumenta durante las reacciones.", correct: false },
+                    { text: "La masa de los contaminantes se reduce a cero.", correct: false }
+                ]
+            },
+            {
                 question: "¿Cómo afecta el aumento de la temperatura a una reacción en equilibrio según el principio de Le Chatelier?",
-                options: [
-                    { value: 'a', text: "Desplaza el equilibrio hacia el lado endotérmico de la reacción." },
-                    { value: 'b', text: "Desplaza el equilibrio hacia el lado exotérmico de la reacción." },
-                    { value: 'c', text: "No afecta el equilibrio." },
-                    { value: 'd', text: "Desplaza el equilibrio hacia los reactantes." }
+                answers: [
+                    { text: "Desplaza el equilibrio hacia el lado endotérmico de la reacción.", correct: true },
+                    { text: "Desplaza el equilibrio hacia el lado exotérmico de la reacción.", correct: false },
+                    { text: "No afecta el equilibrio.", correct: false },
+                    { text: "Desplaza el equilibrio hacia los reactantes.", correct: false }
                 ]
             },
             {
-                id: 'q38',
-                indicator: 'Indicador 6.8: Aplica con persistencia el principio de Le Chatelier para predecir el desplazamiento del equilibrio químico de una reacción reversible.',
-                question: "¿Qué efecto tiene una disminución en la concentración de un producto en una reacción en equilibrio?",
-                options: [
-                    { value: 'a', text: "Desplaza el equilibrio hacia la formación de más productos." },
-                    { value: 'b', text: "Desplaza el equilibrio hacia la formación de más reactantes." },
-                    { value: 'c', text: "No afecta el equilibrio." },
-                    { value: 'd', text: "Detiene la reacción." }
+                question: "¿Qué establece la ley del equilibrio químico?",
+                answers: [
+                    { text: "En una reacción reversible, la velocidad de la reacción directa es igual a la velocidad de la reacción inversa en el equilibrio.", correct: true },
+                    { text: "En una reacción irreversible, los productos se forman más rápido que los reactantes.", correct: false },
+                    { text: "En el equilibrio químico, las concentraciones de reactantes y productos son iguales.", correct: false },
+                    { text: "En el equilibrio químico, no ocurren más reacciones químicas.", correct: false }
                 ]
             },
             {
-                id: 'q39',
-                indicator: 'Indicador 6.8: Aplica con persistencia el principio de Le Chatelier para predecir el desplazamiento del equilibrio químico de una reacción reversible.',
+                question: "¿Qué tipo de reacción química ocurre cuando dos o más sustancias se combinan para formar una sustancia más compleja?",
+                answers: [
+                    { text: "Reacción de combinación.", correct: true },
+                    { text: "Reacción de descomposición.", correct: false },
+                    { text: "Reacción de desplazamiento.", correct: false },
+                    { text: "Reacción de neutralización.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué sucede si se aumenta la presión en una reacción en equilibrio que involucra gases?",
+                answers: [
+                    { text: "El equilibrio se desplaza hacia el lado con menos moles de gas.", correct: true },
+                    { text: "El equilibrio se desplaza hacia el lado con más moles de gas.", correct: false },
+                    { text: "No hay cambio en el equilibrio.", correct: false },
+                    { text: "La reacción se vuelve irreversible.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué efecto tiene la presencia de un catalizador en la velocidad de una reacción química?",
+                answers: [
+                    { text: "Aumenta la velocidad de la reacción sin consumirse.", correct: true },
+                    { text: "Disminuye la velocidad de la reacción y se consume en el proceso.", correct: false },
+                    { text: "No tiene efecto sobre la velocidad de la reacción.", correct: false },
+                    { text: "Detiene la reacción por completo.", correct: false }
+                ]
+            },
+            {
+                question: "¿Cómo se asegura el principio de conservación de la materia en un laboratorio de química?",
+                answers: [
+                    { text: "Balanceando adecuadamente las ecuaciones químicas de las reacciones.", correct: true },
+                    { text: "Aumentando la cantidad de reactantes para obtener más productos.", correct: false },
+                    { text: "Reduciendo la cantidad de productos para igualar la masa de los reactantes.", correct: false },
+                    { text: "No es necesario ningún ajuste, la materia se conserva por sí misma.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué establece la teoría de las colisiones en una reacción química?",
+                answers: [
+                    { text: "Las moléculas deben colisionar con suficiente energía y una orientación adecuada para reaccionar.", correct: true },
+                    { text: "Las moléculas solo necesitan colisionar para reaccionar.", correct: false },
+                    { text: "Las colisiones moleculares siempre resultan en una reacción química.", correct: false },
+                    { text: "Las moléculas reaccionan sin necesidad de colisiones.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué componente es esencial en una reacción de combustión?",
+                answers: [
+                    { text: "Oxígeno.", correct: true },
+                    { text: "Nitrógeno.", correct: false },
+                    { text: "Dióxido de carbono.", correct: false },
+                    { text: "Agua.", correct: false }
+                ]
+            },
+            {
+                question: "¿Cómo afecta el estado de los reactantes a la velocidad de una reacción química?",
+                answers: [
+                    { text: "Las reacciones entre gases suelen ser más rápidas que entre sólidos.", correct: true },
+                    { text: "Las reacciones entre sólidos suelen ser más rápidas que entre líquidos.", correct: false },
+                    { text: "El estado de los reactantes no afecta la velocidad de la reacción.", correct: false },
+                    { text: "Las reacciones entre líquidos son más lentas que entre sólidos.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué tipo de reacción química ocurre cuando un ácido reacciona con una base para formar agua y una sal?",
+                answers: [
+                    { text: "Reacción de neutralización.", correct: true },
+                    { text: "Reacción de desplazamiento.", correct: false },
+                    { text: "Reacción de combinación.", correct: false },
+                    { text: "Reacción de descomposición.", correct: false }
+                ]
+            },
+            {
+                question: "¿Cuál es un signo común de que ha ocurrido una reacción química?",
+                answers: [
+                    { text: "Cambio de color.", correct: true },
+                    { text: "Cambio de estado físico sin cambio químico.", correct: false },
+                    { text: "Fusión de sólidos sin cambio de composición.", correct: false },
+                    { text: "Disolución de sólidos en líquidos.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué sucede con una reacción en equilibrio cuando se aumenta la concentración de uno de los reactantes?",
+                answers: [
+                    { text: "El equilibrio se desplaza hacia los productos.", correct: true },
+                    { text: "El equilibrio se desplaza hacia los reactantes.", correct: false },
+                    { text: "No hay cambio en el equilibrio.", correct: false },
+                    { text: "La reacción se detiene por completo.", correct: false }
+                ]
+            },
+            {
+                question: "¿Cuál de las siguientes opciones representa una reacción química?",
+                answers: [
+                    { text: "La formación de óxido en una reja de hierro expuesta al aire.", correct: true },
+                    { text: "La disolución de azúcar en agua.", correct: false },
+                    { text: "El derretimiento de hielo en agua líquida.", correct: false },
+                    { text: "La evaporación de alcohol en un vaso abierto.", correct: false }
+                ]
+            },
+            {
+                question: "¿Cuál de las siguientes es una reacción de descomposición?",
+                answers: [
+                    { text: "La electrólisis del agua para formar hidrógeno y oxígeno.", correct: true },
+                    { text: "La combustión de metano en dióxido de carbono y agua.", correct: false },
+                    { text: "La mezcla de ácido clorhídrico con hidróxido de sodio para formar sal y agua.", correct: false },
+                    { text: "La combinación de nitrógeno e hidrógeno para formar amoníaco.", correct: false }
+                ]
+            },
+            {
+                question: "¿En qué consiste el método algebraico para balancear ecuaciones químicas?",
+                answers: [
+                    { text: "En plantear un sistema de ecuaciones que representa la cantidad de átomos de cada elemento.", correct: true },
+                    { text: "En ajustar los coeficientes por prueba y error.", correct: false },
+                    { text: "En usar fracciones en lugar de números enteros para balancear la ecuación.", correct: false },
+                    { text: "En balancear solo los elementos metálicos.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué ocurre con los reactantes en una reacción química?",
+                answers: [
+                    { text: "Se transforman en productos con diferentes propiedades químicas.", correct: true },
+                    { text: "Se combinan físicamente pero conservan sus propiedades químicas.", correct: false },
+                    { text: "Se separan sin formar nuevas sustancias.", correct: false },
+                    { text: "Se conservan sin cambio en la composición química.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué tipo de reacción química implica la ruptura de una sustancia en dos o más productos más simples?",
+                answers: [
+                    { text: "Reacción de descomposición.", correct: true },
+                    { text: "Reacción de combinación.", correct: false },
+                    { text: "Reacción de desplazamiento.", correct: false },
+                    { text: "Reacción de neutralización.", correct: false }
+                ]
+            },
+            {
                 question: "¿Cómo afecta un aumento de presión a una reacción en equilibrio con gases según el principio de Le Chatelier?",
-                options: [
-                    { value: 'a', text: "Desplaza el equilibrio hacia el lado con menos moles de gas." },
-                    { value: 'b', text: "Desplaza el equilibrio hacia el lado con más moles de gas." },
-                    { value: 'c', text: "No afecta el equilibrio." },
-                    { value: 'd', text: "El equilibrio se mantiene sin cambios." }
+                answers: [
+                    { text: "Desplaza el equilibrio hacia el lado con menos moles de gas.", correct: true },
+                    { text: "Desplaza el equilibrio hacia el lado con más moles de gas.", correct: false },
+                    { text: "No afecta el equilibrio.", correct: false },
+                    { text: "El equilibrio se mantiene sin cambios.", correct: false }
                 ]
             },
             {
-                id: 'q40',
-                indicator: 'Indicador 6.8: Aplica con persistencia el principio de Le Chatelier para predecir el desplazamiento del equilibrio químico de una reacción reversible.',
+                question: "¿Cómo se representa el principio de conservación de la materia en una ecuación química balanceada?",
+                answers: [
+                    { text: "El número de átomos de cada elemento es igual en ambos lados de la ecuación.", correct: true },
+                    { text: "La masa de los productos es mayor que la masa de los reactantes.", correct: false },
+                    { text: "La masa de los reactantes es menor que la masa de los productos.", correct: false },
+                    { text: "El número de moléculas es mayor en los productos.", correct: false }
+                ]
+            },
+            {
+                question: "¿Cuál es la primera regla en el balanceo de ecuaciones químicas por el método del tanteo?",
+                answers: [
+                    { text: "Comenzar por el elemento que aparece en un solo compuesto en ambos lados de la ecuación.", correct: true },
+                    { text: "Comenzar por el oxígeno y el hidrógeno.", correct: false },
+                    { text: "Comenzar por el elemento que aparece en más compuestos.", correct: false },
+                    { text: "Comenzar por los elementos no metálicos.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué establece el principio de conservación de la materia en una reacción química?",
+                answers: [
+                    { text: "La masa total de los reactantes es igual a la masa total de los productos.", correct: true },
+                    { text: "La masa total de los reactantes es mayor que la masa total de los productos.", correct: false },
+                    { text: "La masa total de los reactantes es menor que la masa total de los productos.", correct: false },
+                    { text: "La masa se destruye durante la reacción.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la frecuencia de colisión en la teoría de las colisiones?",
+                answers: [
+                    { text: "El número de colisiones por unidad de tiempo entre moléculas reactantes.", correct: true },
+                    { text: "El número de colisiones exitosas que resultan en una reacción.", correct: false },
+                    { text: "El número de colisiones fallidas en un sistema.", correct: false },
+                    { text: "El número de colisiones necesarias para alcanzar la energía de activación.", correct: false }
+                ]
+            },
+            {
+                question: "¿Cómo afecta la temperatura del sistema a la velocidad de una reacción química?",
+                answers: [
+                    { text: "Un aumento en la temperatura generalmente aumenta la velocidad de la reacción.", correct: true },
+                    { text: "Un aumento en la temperatura disminuye la velocidad de la reacción.", correct: false },
+                    { text: "Un aumento en la temperatura no tiene efecto sobre la velocidad de la reacción.", correct: false },
+                    { text: "Un aumento en la temperatura detiene la reacción.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es el método de tanteo en el balanceo de ecuaciones químicas?",
+                answers: [
+                    { text: "Un método de prueba y error para igualar el número de átomos de cada elemento en ambos lados de la ecuación.", correct: true },
+                    { text: "Un método que utiliza ecuaciones algebraicas para balancear la ecuación.", correct: false },
+                    { text: "Un método que se aplica solo en reacciones redox.", correct: false },
+                    { text: "Un método que no requiere ajuste de coeficientes.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué tipo de reacción química ocurre cuando un elemento desplaza a otro en un compuesto?",
+                answers: [
+                    { text: "Reacción de desplazamiento.", correct: true },
+                    { text: "Reacción de combinación.", correct: false },
+                    { text: "Reacción de descomposición.", correct: false },
+                    { text: "Reacción de neutralización.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la constante de equilibrio (K) en una reacción química?",
+                answers: [
+                    { text: "Es una relación entre las concentraciones de productos y reactantes en el equilibrio.", correct: true },
+                    { text: "Es una constante que depende de la velocidad de la reacción.", correct: false },
+                    { text: "Es una constante que indica la cantidad de productos formados al final de la reacción.", correct: false },
+                    { text: "Es una constante que no cambia con la temperatura.", correct: false }
+                ]
+            },
+            {
                 question: "¿Qué sucede si se aumenta la concentración de un reactante en una reacción en equilibrio?",
-                options: [
-                    { value: 'a', text: "El equilibrio se desplaza hacia la formación de más productos." },
-                    { value: 'b', text: "El equilibrio se desplaza hacia la formación de más reactantes." },
-                    { value: 'c', text: "No afecta el equilibrio." },
-                    { value: 'd', text: "El equilibrio se invierte completamente." }
+                answers: [
+                    { text: "El equilibrio se desplaza hacia la formación de más productos.", correct: true },
+                    { text: "El equilibrio se desplaza hacia la formación de más reactantes.", correct: false },
+                    { text: "No afecta el equilibrio.", correct: false },
+                    { text: "El equilibrio se invierte completamente.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué ocurre con los átomos durante una reacción química según el principio de conservación de la materia?",
+                answers: [
+                    { text: "Los átomos se redistribuyen entre los reactantes y los productos, pero su número total permanece constante.", correct: true },
+                    { text: "Los átomos desaparecen en los reactantes y aparecen en los productos.", correct: false },
+                    { text: "Los átomos se destruyen durante la reacción.", correct: false },
+                    { text: "Los átomos se crean durante la reacción.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué método se utiliza específicamente para balancear ecuaciones de reacciones de óxido-reducción?",
+                answers: [
+                    { text: "El método del ion-electrón.", correct: true },
+                    { text: "El método del tanteo.", correct: false },
+                    { text: "El método algebraico.", correct: false },
+                    { text: "El método de combinación.", correct: false }
+                ]
+            },
+            {
+                question: "¿Cómo afecta la orientación de las moléculas en una colisión a la reacción química?",
+                answers: [
+                    { text: "La orientación correcta es necesaria para que la colisión resulte en una reacción.", correct: true },
+                    { text: "La orientación de las moléculas no afecta la reacción.", correct: false },
+                    { text: "Cualquier orientación resulta en una reacción química exitosa.", correct: false },
+                    { text: "La orientación incorrecta acelera la reacción.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué factor afecta la velocidad de una reacción química al influir en la frecuencia de las colisiones entre las moléculas reactantes?",
+                answers: [
+                    { text: "La concentración de los reactantes.", correct: true },
+                    { text: "La naturaleza de los reactantes.", correct: false },
+                    { text: "La presión del sistema.", correct: false },
+                    { text: "El estado físico de los reactantes.", correct: false }
+                ]
+            },
+            {
+                question: "¿Cómo se relaciona la energía de activación con la teoría de las colisiones?",
+                answers: [
+                    { text: "Es la mínima energía que las moléculas deben tener al colisionar para que ocurra una reacción.", correct: true },
+                    { text: "Es la energía máxima que las moléculas pueden tener para reaccionar.", correct: false },
+                    { text: "Es la energía que se libera durante la colisión.", correct: false },
+                    { text: "Es la energía que se absorbe durante la reacción.", correct: false }
+                ]
+            },
+            {
+                question: "¿Cómo afecta un cambio de temperatura a una reacción en equilibrio?",
+                answers: [
+                    { text: "Depende de si la reacción es endotérmica o exotérmica.", correct: true },
+                    { text: "Siempre desplaza el equilibrio hacia los productos.", correct: false },
+                    { text: "Siempre desplaza el equilibrio hacia los reactantes.", correct: false },
+                    { text: "No afecta el equilibrio.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué efecto tiene una disminución en la concentración de un producto en una reacción en equilibrio?",
+                answers: [
+                    { text: "Desplaza el equilibrio hacia la formación de más productos.", correct: true },
+                    { text: "Desplaza el equilibrio hacia la formación de más reactantes.", correct: false },
+                    { text: "No afecta el equilibrio.", correct: false },
+                    { text: "Detiene la reacción.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué ocurre si las moléculas colisionan con una energía inferior a la energía de activación?",
+                answers: [
+                    { text: "No ocurre ninguna reacción.", correct: true },
+                    { text: "Ocurre una reacción lenta.", correct: false },
+                    { text: "Ocurre una reacción rápida.", correct: false },
+                    { text: "La reacción se detiene de inmediato.", correct: false }
                 ]
             }
         ];
 
-        const correctAnswerKeys = { 
-            q1: 'a', q2: 'a', q3: 'a', q4: 'a', q5: 'a',
-            q6: 'a', q7: 'a', q8: 'a', q9: 'a', q10: 'a',
-            q11: 'a', q12: 'a', q13: 'a', q14: 'a', q15: 'a',
-            q16: 'a', q17: 'a', q18: 'a', q19: 'a', q20: 'a',
-            q21: 'a', q22: 'a', q23: 'a', q24: 'a', q25: 'a',
-            q26: 'a', q27: 'a', q28: 'a', q29: 'a', q30: 'a',
-            q31: 'a', q32: 'a', q33: 'a', q34: 'a', q35: 'a',
-            q36: 'a', q37: 'a', q38: 'a', q39: 'a', q40: 'a'
-        };
+       const authorizedNIEs = [
+            "4267837", "3850952", "3851018", "5032035", "19806181", "6297536", "2608724",
+            "6262810", "4267838", "20162435", "3850923", "19806209", "4267828", "3850942"
+        ];
+
+        let attempt = 0;
+        const maxAttempts = 2;
+        const evaluationName = "Evaluación Unidad 6: Interacciones de la Materia";
+        let timer;
+        let timeLeft = 1800; // 30 minutos en segundos
+        let startTime;
+        let manipulationCount = 0;
 
         function shuffle(array) {
             for (let i = array.length - 1; i > 0; i--) {
@@ -572,99 +568,136 @@
             return array;
         }
 
-        function displayQuestions() {
-            const container = document.getElementById('questions-container');
-            const shuffledQuestions = shuffle([...questions]);
-
-            shuffledQuestions.forEach((q, index) => {
+        function loadQuiz() {
+            const quizContainer = document.getElementById('quiz');
+            quizContainer.innerHTML = '';
+            
+            // Shuffle questions and answers
+            const shuffledQuizData = shuffle([...quizData]);
+            shuffledQuizData.forEach((quizItem, quizIndex) => {
                 const questionElement = document.createElement('div');
-                questionElement.classList.add('question');
-                questionElement.innerHTML = `
-                    <h3>${q.indicator}</h3>
-                    <p>${index + 1}. ${q.question}</p>
-                    ${q.options.map(option => `
-                        <input type="radio" name="${q.id}" value="${option.value}" required> ${option.value}) ${option.text}<br>
-                    `).join('')}
-                `;
-                container.appendChild(questionElement);
+                questionElement.className = 'question';
+                questionElement.innerHTML = `<strong>${quizIndex + 1}. ${quizItem.question}</strong>`;
+                
+                const optionsList = document.createElement('ul');
+                optionsList.className = 'options';
+
+                const shuffledAnswers = shuffle([...quizItem.answers]);
+                shuffledAnswers.forEach((answer, answerIndex) => {
+                    const listItem = document.createElement('li');
+                    listItem.innerHTML = `
+                        <label>
+                            <input type="radio" name="question${quizIndex}" value="${answer.correct}">
+                            ${answer.text}
+                        </label>`;
+                    optionsList.appendChild(listItem);
+                });
+
+                questionElement.appendChild(optionsList);
+                quizContainer.appendChild(questionElement);
             });
         }
 
-        function startTimer() {
-            document.getElementById('timer').classList.remove('hidden');
-            startTime = new Date();
-            const timerInterval = setInterval(() => {
-                const minutes = Math.floor(timeRemaining / 60);
-                const seconds = timeRemaining % 60;
-                timerElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-                if (timeRemaining === 0) {
-                    clearInterval(timerInterval);
-                    showResults("Tiempo agotado. No se pudo completar la evaluación.", []);
+        document.getElementById('startQuiz').addEventListener('click', () => {
+            const fullname = document.getElementById('fullname').value.trim();
+            const nie = document.getElementById('nie').value.trim();
+
+            if (fullname && authorizedNIEs.includes(nie)) {
+                document.querySelector('.quiz-container').style.display = 'block';
+                document.getElementById('infoModal').style.display = 'none';
+
+                startTimer();
+                startTime = new Date();
+            } else {
+                alert('Por favor, ingresa un NIE válido o asegúrate de que tu nombre esté completo.');
+            }
+        });
+
+        document.getElementById('submit').addEventListener('click', () => {
+            const answerContainers = document.querySelectorAll('.quiz-container .question');
+            let score = 0;
+            let incorrectAnswers = [];
+
+            answerContainers.forEach((container, index) => {
+                const selectedOption = container.querySelector('input[type="radio"]:checked');
+                if (selectedOption) {
+                    const isCorrect = selectedOption.value === "true";
+                    if (isCorrect) {
+                        score++;
+                    } else {
+                        incorrectAnswers.push(index + 1);
+                    }
+                } else {
+                    incorrectAnswers.push(index + 1);
                 }
-                timeRemaining--;
+            });
+
+            const endTime = new Date();
+            const timeTaken = Math.floor((endTime - startTime) / 1000);
+
+            const fullname = document.getElementById('fullname').value.trim();
+            const nie = document.getElementById('nie').value.trim();
+            const scorePercentage = (score / quizData.length) * 10;
+            const formattedTimeTaken = `${Math.floor(timeTaken / 60)} minutos y ${timeTaken % 60} segundos`;
+
+            // Show results in the modal
+            document.getElementById('modalName').innerText = `Nombre: ${fullname}`;
+            document.getElementById('modalNIE').innerText = `NIE: ${nie}`;
+            document.getElementById('modalDetails').innerText = `Calificación obtenida: ${scorePercentage.toFixed(2)} / 10\nTiempo: ${formattedTimeTaken}\nUnidad: ${evaluationName}\nFecha: ${new Date().toLocaleString()}`;
+            document.getElementById('modalIncorrectAnswers').innerHTML = incorrectAnswers.map(num => `<div>Pregunta ${num}</div>`).join('');
+            document.getElementById('attemptCount').innerText = `Intento ${attempt + 1} de ${maxAttempts}`;
+            document.getElementById('manipulationCount').innerText = `Intentos de manipulación detectados: ${manipulationCount}`;
+            document.getElementById('resultModal').style.display = 'block';
+
+            attempt++;
+            if (attempt >= maxAttempts) {
+                document.getElementById('submit').disabled = true;
+            }
+        });
+
+        document.querySelector('.close').addEventListener('click', () => {
+            document.getElementById('resultModal').style.display = 'none';
+        });
+
+        function startTimer() {
+            timer = setInterval(() => {
+                timeLeft--;
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    document.getElementById('submit').click();
+                } else {
+                    const minutes = Math.floor(timeLeft / 60);
+                    const seconds = timeLeft % 60;
+                    document.getElementById('timer').innerText = `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
+                    if (timeLeft <= 600 && timeLeft > 300) {
+                        document.getElementById('timer').style.backgroundColor = 'orange';
+                    } else if (timeLeft <= 300) {
+                        document.getElementById('timer').style.backgroundColor = 'red';
+                    }
+                }
             }, 1000);
         }
 
-        document.getElementById('infoForm').addEventListener('submit', function (event) {
-            event.preventDefault();
-            const name = document.getElementById('name').value;
-            const nie = document.getElementById('nie').value;
+        // Mostrar ventana modal de información al cargar la página
+        document.getElementById('infoModal').style.display = 'block';
+        loadQuiz();
 
-            if (!nieList.includes(nie)) {
-                alert("NIE no autorizado.");
-                return;
+        // Deshabilitar clic derecho
+        document.addEventListener('contextmenu', (event) => event.preventDefault());
+
+        // Deshabilitar copiar y pegar
+        document.addEventListener('copy', (event) => event.preventDefault());
+        document.addEventListener('paste', (event) => event.preventDefault());
+
+        // Monitor de cambios sospechosos
+        let originalQuizState = JSON.stringify([...document.querySelectorAll('input[type="radio"]')].map(input => input.checked));
+        setInterval(() => {
+            const currentQuizState = JSON.stringify([...document.querySelectorAll('input[type="radio"]')].map(input => input.checked));
+            if (originalQuizState !== currentQuizState) {
+                manipulationCount++;
+                originalQuizState = currentQuizState;
             }
-
-            document.getElementById('studentInfoForm').classList.add('hidden');
-            document.getElementById('quiz').classList.remove('hidden');
-            displayQuestions();
-            startTimer();
-        });
-
-        document.getElementById('submitQuiz').addEventListener('click', function () {
-            let correctAnswers = 0;
-            let incorrectAnswers = [];
-
-            questions.forEach(q => {
-                const selectedAnswer = document.querySelector(`input[name="${q.id}"]:checked`);
-                if (selectedAnswer) {
-                    if (selectedAnswer.value === correctAnswerKeys[q.id]) {
-                        correctAnswers++;
-                    } else {
-                        incorrectAnswers.push(`Pregunta ${q.id.substring(1)} incorrecta.`);
-                    }
-                }
-            });
-
-            const score = (correctAnswers / questions.length) * 10;
-            const endTime = new Date();
-            const timeTaken = Math.floor((endTime - startTime) / 1000); // Tiempo en segundos
-
-            showResults(`Calificación: ${score.toFixed(2)} / 10`, incorrectAnswers, timeTaken);
-        });
-
-        function showResults(scoreText, incorrectAnswers, timeTaken) {
-            const date = new Date();
-            const minutesTaken = Math.floor(timeTaken / 60);
-            const secondsTaken = timeTaken % 60;
-
-            document.getElementById('quiz').classList.add('hidden');
-            document.getElementById('resultsModal').style.display = 'block';
-            document.getElementById('overlay').style.display = 'block';
-
-            document.getElementById('date').textContent = `Fecha: ${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
-            document.getElementById('timeTaken').textContent = `Tiempo tomado: ${minutesTaken} minutos y ${secondsTaken} segundos`;
-            document.getElementById('unitEvaluated').textContent = `Unidad Evaluada: Unidad 6: Interacciones de la Materia`;
-            document.getElementById('studentName').textContent = `Nombre del Estudiante: ${document.getElementById('name').value}`;
-            document.getElementById('studentNIE').textContent = `NIE: ${document.getElementById('nie').value}`;
-            document.getElementById('score').textContent = scoreText;
-            document.getElementById('incorrectAnswers').textContent = incorrectAnswers.join(', ');
-        }
-
-        document.getElementById('closeModal').addEventListener('click', function () {
-            document.getElementById('resultsModal').style.display = 'none';
-            document.getElementById('overlay').style.display = 'none';
-        });
+        }, 1000);
     </script>
 </body>
 </html>
